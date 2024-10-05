@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Album } from './entities/album.entity';
@@ -16,14 +16,20 @@ export class AlbumsService {
     return this.albumsRepository.save(album);
   }
 
-  findAll(): Promise<Album[]> {
-    return this.albumsRepository.find({ relations: ['artist_id'] });
+  async findAll(): Promise<Album[]> {
+    try {
+      return await this.albumsRepository.find({ relations: ['artist'] });
+    } catch (error) {
+      console.error(error);
+      throw new InternalServerErrorException('Xato yuz berdi');
+    }
   }
+  
 
   findOne(id: number): Promise<Album> {
     return this.albumsRepository.findOne({
       where: { id },
-      relations: ['artist_id'],
+      relations: ['artist'],
     });
   }
 
